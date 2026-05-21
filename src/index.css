@@ -187,113 +187,119 @@ body {
 }
 
 .paper {
-  background: #FDFCF7;
-  color: #1A1F2C;
-  border-radius: 4px;
+  background: #FFFFFF;
+  color: #000000;
+  border-radius: 2px;
   box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.6), 0 0 30px rgba(0, 0, 0, 0.2);
-  padding: 3.5rem 3rem;
-  font-family: var(--font-serif);
-  font-size: 0.9rem;
-  line-height: 1.8;
+  padding: 4rem 3.5rem;
+  font-family: 'Times New Roman', Times, serif;
+  font-size: 11pt;
+  line-height: 1.5;
   position: relative;
   overflow: hidden;
   box-sizing: border-box;
   min-height: 700px;
-  border: 1px solid rgba(255, 255, 255, 0.8);
-}
-
-.paper::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 4px;
-  background: linear-gradient(90deg, var(--gold-secondary) 0%, var(--gold-primary) 50%, var(--gold-secondary) 100%);
 }
 
 .paper-title {
   text-align: center;
-  font-size: 1.5rem;
-  font-weight: 700;
-  letter-spacing: 1px;
-  margin-bottom: 2rem;
+  font-size: 12pt;
+  font-weight: bold;
+  margin-top: 1rem;
+  margin-bottom: 1.5rem;
   text-transform: uppercase;
-  color: #111;
-  border-bottom: 2px double rgba(17, 17, 17, 0.15);
-  padding-bottom: 0.75rem;
+  color: #000;
 }
 
 .paper-clause {
-  margin-bottom: 1.5rem;
+  margin-bottom: 1rem;
   text-align: justify;
 }
 
 .paper-clause h3 {
-  font-size: 1rem;
-  font-weight: 700;
-  margin-top: 0;
+  font-size: 11pt;
+  font-weight: bold;
+  margin-top: 1.5rem;
   margin-bottom: 0.5rem;
   text-transform: uppercase;
-  color: #222;
-  letter-spacing: 0.5px;
+  color: #000;
+  text-align: center;
 }
 
 .paper-highlight {
-  background-color: rgba(212, 175, 55, 0.15);
-  border-bottom: 1px dashed var(--gold-primary);
-  padding: 1px 4px;
-  border-radius: 2px;
-  font-weight: 600;
+  background-color: transparent;
+  border-bottom: 1px solid #000;
+  padding: 0 4px;
+  border-radius: 0;
+  font-weight: normal;
   color: #000;
-  transition: all 0.3s ease;
   display: inline-block;
+  min-width: 100px;
+  text-align: center;
+  font-family: inherit;
 }
 
 .paper-highlight.pulse {
-  animation: gold-flash 0.8s ease-out;
-}
-
-@keyframes gold-flash {
-  0% {
-    background-color: rgba(212, 175, 55, 0.6);
-    box-shadow: 0 0 8px rgba(212, 175, 55, 0.8);
-  }
-  100% {
-    background-color: rgba(212, 175, 55, 0.15);
-    box-shadow: none;
-  }
+  background-color: rgba(212, 175, 55, 0.15);
 }
 
 .paper-signature-line {
-  margin-top: 4rem;
+  margin-top: 3rem;
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 3rem;
+  gap: 4rem;
 }
 
 .sig-block {
-  border-top: 1px solid rgba(17, 17, 17, 0.3);
-  padding-top: 0.5rem;
-  font-size: 0.75rem;
-  color: #555;
-  font-family: var(--font-sans);
-  text-transform: uppercase;
-  letter-spacing: 1px;
+  border-top: 1px solid #000;
+  padding-top: 0.25rem;
+  font-size: 10pt;
+  color: #000;
+  font-family: 'Times New Roman', Times, serif;
+  text-align: left;
 }
 
 .digital-signature {
   font-family: var(--font-cursive);
-  font-size: 2.2rem;
-  height: 50px;
+  font-size: 2rem;
+  height: 40px;
   display: flex;
   align-items: flex-end;
-  color: #0F2A4A; /* Traditional blue ink */
+  color: #0F2A4A;
   padding-left: 0.5rem;
-  transform: translateY(-8px);
+  transform: translateY(-5px);
 }
 
-/* Button & Action Styling */
+.legal-list {
+  list-style-type: decimal;
+  padding-left: 2rem;
+  margin-bottom: 1rem;
+  text-align: justify;
+}
+
+.legal-list li {
+  margin-bottom: 0.5rem;
+}
+
+.legal-list strong {
+  color: #000;
+}
+
+.contract-details-card {
+  display: block;
+  margin-top: 3rem;
+  font-size: 10pt;
+  color: #000;
+  font-family: 'Times New Roman', Times, serif;
+  line-height: 1.2;
+}
+
+.contract-details-header {
+  font-weight: bold;
+  margin-top: 1.5rem;
+  margin-bottom: 0.2rem;
+  color: #000;
+}
 .btn-primary {
   width: 100%;
   padding: 1rem;
