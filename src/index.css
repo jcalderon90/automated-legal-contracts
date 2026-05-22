@@ -216,7 +216,7 @@ body {
   text-align: justify;
 }
 
-.paper-clause h3 {
+h3.paper-clause {
   font-size: 11pt;
   font-weight: bold;
   margin-top: 1.5rem;
@@ -270,36 +270,6 @@ body {
   transform: translateY(-5px);
 }
 
-.legal-list {
-  list-style-type: decimal;
-  padding-left: 2rem;
-  margin-bottom: 1rem;
-  text-align: justify;
-}
-
-.legal-list li {
-  margin-bottom: 0.5rem;
-}
-
-.legal-list strong {
-  color: #000;
-}
-
-.contract-details-card {
-  display: block;
-  margin-top: 3rem;
-  font-size: 10pt;
-  color: #000;
-  font-family: 'Times New Roman', Times, serif;
-  line-height: 1.2;
-}
-
-.contract-details-header {
-  font-weight: bold;
-  margin-top: 1.5rem;
-  margin-bottom: 0.2rem;
-  color: #000;
-}
 .btn-primary {
   width: 100%;
   padding: 1rem;
@@ -559,6 +529,7 @@ body {
   list-style-type: decimal;
   padding-left: 1.25rem;
   margin-bottom: 1.5rem;
+  text-align: justify;
 }
 
 .legal-list li {
