@@ -1,9 +1,8 @@
-import { useState } from 'react';
+import React, { useState } from 'react';
 import logo from './assets/logo.png';
-import { 
-  Shield, 
-  RefreshCw, 
-  CheckCircle2, 
+import {
+  Shield,
+  CheckCircle2,
   PenTool,
   Scale,
   Globe
@@ -27,7 +26,7 @@ const t = {
     payorName: "Nombre Completo",
     payorNamePlaceholder: "ej. Enrique Martinez",
     payorRelation: "Relación con el Cliente",
-    payorRelationPlaceholder: "ej. Hermano, Amigo",
+    payorRelationPlaceholder: "ej. Hermano, Companero de la Iglesia",
     payorAddress: "Dirección (Opcional)",
     payorPhone: "Teléfono",
     payorEmail: "Email (Opcional)",
@@ -119,9 +118,9 @@ const t = {
     parametersTitle: "Contract Parameters",
     clientSection: "Client Information",
     clientName: "Client Name",
-    clientNamePlaceholder: "e.g. John Doe",
+    clientNamePlaceholder: "e.g. Peggy Davis",
     clientAddress: "Physical Address",
-    clientAddressPlaceholder: "e.g. 123 Main St, Houston, TX",
+    clientAddressPlaceholder: "e.g. 3522 Brunswick Meadows, Houston TX 77035",
     clientPhone: "Phone Number",
     clientEmail: "Email Address",
     payorSection: "Alternate Contact / Payor",
@@ -129,7 +128,7 @@ const t = {
     yes: "Yes",
     no: "No",
     payorName: "Full Name",
-    payorNamePlaceholder: "e.g. Jane Doe",
+    payorNamePlaceholder: "e.g. Rhonda Boutte",
     payorRelation: "Relationship to Client",
     payorRelationPlaceholder: "e.g. Sister, Friend",
     payorAddress: "Address (Optional)",
@@ -138,7 +137,7 @@ const t = {
     noPayorMsg: "The contract will not include a backup contact or financial guarantor.",
     detailsSection: "Case Details",
     purpose: "Purpose of Representation",
-    purposePlaceholder: "e.g. Immigration Proceedings",
+    purposePlaceholder: "e.g. Last Will and Testament",
     agreementDate: "Agreement Date",
     preparedBy: "Prepared By (Initials)",
     feesSection: "Fees and Payments",
@@ -250,43 +249,51 @@ export default function App() {
   const [payorSignatureText, setPayorSignatureText] = useState<string>('');
   const [sigColor, setSigColor] = useState<string>('#0F2A4A'); 
   
-  const [isExporting, setIsExporting] = useState<boolean>(false);
-  const [exportStep, setExportStep] = useState<number>(0);
   const [showToast, setShowToast] = useState<boolean>(false);
 
   const ui = t[lang];
 
   const handleInputChange = (field: string, value: string) => {
-    setFormValues(prev => ({ ...prev, [field]: value }));
+    setFormValues(prev => {
+      const next = { ...prev, [field]: value };
+      // initialPayment cannot exceed flatFee
+      if (field === 'flatFee' && Number(next.initialPayment) > Number(value)) {
+        next.initialPayment = value;
+      }
+      if (field === 'initialPayment') {
+        const max = Number(next.flatFee);
+        if (max > 0 && Number(value) > max) next.initialPayment = String(max);
+      }
+      return next;
+    });
     setActiveField(field);
-    
     if (field === 'clientName') setSignatureText(value);
     if (field === 'payorName') setPayorSignatureText(value);
-
     setTimeout(() => setActiveField(''), 600);
   };
 
-  const getHighlightClass = (field: string) => 
+  const remainingBalance = formValues.flatFee && formValues.initialPayment
+    ? Number(formValues.flatFee) - Number(formValues.initialPayment)
+    : null;
+
+  const getHighlightClass = (field: string) =>
     `paper-highlight ${activeField === field ? 'pulse' : ''}`;
 
+  const OptLabel = ({ children, optional }: { children: React.ReactNode; optional?: boolean }) => (
+    <span style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+      {children}
+      {optional && (
+        <span style={{ fontFamily: 'var(--font-mono)', fontSize: '0.55rem', color: 'var(--text-muted)', letterSpacing: '1px', fontWeight: 400, textTransform: 'uppercase' }}>
+          {lang === 'es' ? 'opcional' : 'optional'}
+        </span>
+      )}
+    </span>
+  );
+
   const handleExport = () => {
-    setIsExporting(true);
-    setExportStep(1);
-    setTimeout(() => {
-      setExportStep(2);
-      setTimeout(() => {
-        setExportStep(3);
-        setTimeout(() => {
-          setExportStep(4);
-          setTimeout(() => {
-            setIsExporting(false);
-            setExportStep(0);
-            setShowToast(true);
-            setTimeout(() => setShowToast(false), 4500);
-          }, 1200);
-        }, 1000);
-      }, 1000);
-    }, 1000);
+    window.print();
+    setShowToast(true);
+    setTimeout(() => setShowToast(false), 4000);
   };
 
   return (
@@ -309,48 +316,43 @@ export default function App() {
       </header>
 
       {/* Main Dashboard Layout */}
-      <div className="dashboard-grid" style={{ gridTemplateColumns: 'minmax(400px, 35%) 1fr' }}>
+      <div className="dashboard-grid">
         
         {/* Left Side: Unified Form Panel */}
-        <div className="panel" style={{ maxHeight: 'calc(100vh - 100px)', overflowY: 'auto' }}>
+        <div className="panel">
           
-          <div className="flex-between mb-6 border-b border-gray-800 pb-4 sticky top-0 bg-[#161A26] z-10 pt-2">
+          <div className="panel-sticky-header flex-between">
             <div className="flex items-center gap-2">
-              <Shield className="text-[#D4AF37] w-5 h-5" />
-              <h2 className="text-xl font-bold uppercase tracking-wider text-[#F3E5AB]">
+              <Shield className="w-4 h-4" style={{ color: 'var(--gold)' }} />
+              <span style={{ fontFamily: 'var(--font-mono)', fontSize: '0.62rem', letterSpacing: '3px', textTransform: 'uppercase', color: 'var(--gold-light)' }}>
                 {ui.parametersTitle}
-              </h2>
+              </span>
             </div>
           </div>
 
-          <div className="space-y-8 pb-8">
-            {/* 1. Language Selection (CRITICAL REQUIREMENT) */}
-            <div className="bg-[#0b0d13]/60 p-5 rounded-lg border border-[#D4AF37]/30">
-              <label className="flex items-center gap-2 text-[#F3E5AB] font-bold mb-3 uppercase tracking-wider text-sm">
-                <Globe size={16} />
-                {ui.languageLabel}
-              </label>
-              <div className="flex gap-4">
-                <button
-                  onClick={() => setLang('es')}
-                  className={`flex-1 py-2 rounded border transition-colors ${lang === 'es' ? 'bg-[#D4AF37]/20 border-[#D4AF37] text-white' : 'border-gray-700 text-gray-400 hover:border-gray-500'}`}
-                >
+          <div className="space-y-0 pb-8">
+            {/* Language */}
+            <div className="form-section">
+              <div className="section-header">
+                <Globe size={11} style={{ color: 'var(--gold)' }} />
+                <span className="section-title">{ui.languageLabel}</span>
+              </div>
+              <div className="lang-toggle">
+                <button onClick={() => setLang('es')} className={`lang-btn ${lang === 'es' ? 'active' : ''}`}>
                   🇪🇸 Español
                 </button>
-                <button
-                  onClick={() => setLang('en')}
-                  className={`flex-1 py-2 rounded border transition-colors ${lang === 'en' ? 'bg-[#D4AF37]/20 border-[#D4AF37] text-white' : 'border-gray-700 text-gray-400 hover:border-gray-500'}`}
-                >
+                <button onClick={() => setLang('en')} className={`lang-btn ${lang === 'en' ? 'active' : ''}`}>
                   🇺🇸 English
                 </button>
               </div>
             </div>
 
             {/* Client Section */}
-            <div>
-              <h3 className="text-sm font-bold text-gray-300 uppercase tracking-wider mb-4 border-b border-gray-800 pb-2">
-                1. {ui.clientSection}
-              </h3>
+            <div className="form-section">
+              <div className="section-header">
+                <span className="section-number">01</span>
+                <span className="section-title">{ui.clientSection}</span>
+              </div>
               <div className="space-y-4">
                 <div className="form-group">
                   <label>{ui.clientName}</label>
@@ -363,7 +365,7 @@ export default function App() {
                   />
                 </div>
                 <div className="form-group">
-                  <label>{ui.clientAddress}</label>
+                  <label><OptLabel optional>{ui.clientAddress}</OptLabel></label>
                   <input
                     type="text"
                     value={formValues.clientAddress}
@@ -374,7 +376,7 @@ export default function App() {
                 </div>
                 <div className="grid-2-cols">
                   <div className="form-group">
-                    <label>{ui.clientPhone}</label>
+                    <label><OptLabel optional>{ui.clientPhone}</OptLabel></label>
                     <input
                       type="text"
                       value={formValues.clientPhone}
@@ -383,7 +385,7 @@ export default function App() {
                     />
                   </div>
                   <div className="form-group">
-                    <label>{ui.clientEmail}</label>
+                    <label><OptLabel optional>{ui.clientEmail}</OptLabel></label>
                     <input
                       type="email"
                       value={formValues.clientEmail}
@@ -396,10 +398,11 @@ export default function App() {
             </div>
 
             {/* Payor Section */}
-            <div>
-              <h3 className="text-sm font-bold text-gray-300 uppercase tracking-wider mb-4 border-b border-gray-800 pb-2">
-                2. {ui.payorSection}
-              </h3>
+            <div className="form-section">
+              <div className="section-header">
+                <span className="section-number">02</span>
+                <span className="section-title">{ui.payorSection}</span>
+              </div>
               <div className="payor-toggle-box mb-4">
                 <label className="cursor-pointer">{ui.hasPayor}</label>
                 <select
@@ -436,7 +439,7 @@ export default function App() {
                     />
                   </div>
                   <div className="form-group">
-                    <label>{ui.payorAddress}</label>
+                    <label><OptLabel optional>{ui.payorAddress}</OptLabel></label>
                     <input
                       type="text"
                       value={formValues.payorAddress}
@@ -455,7 +458,7 @@ export default function App() {
                       />
                     </div>
                     <div className="form-group">
-                      <label>{ui.payorEmail}</label>
+                      <label><OptLabel optional>{ui.payorEmail}</OptLabel></label>
                       <input
                         type="email"
                         value={formValues.payorEmail}
@@ -473,10 +476,11 @@ export default function App() {
             </div>
 
             {/* Case Details */}
-            <div>
-              <h3 className="text-sm font-bold text-gray-300 uppercase tracking-wider mb-4 border-b border-gray-800 pb-2">
-                3. {ui.detailsSection}
-              </h3>
+            <div className="form-section">
+              <div className="section-header">
+                <span className="section-number">03</span>
+                <span className="section-title">{ui.detailsSection}</span>
+              </div>
               <div className="space-y-4">
                 <div className="form-group">
                   <label>{ui.purpose}</label>
@@ -513,16 +517,18 @@ export default function App() {
             </div>
 
             {/* Fees Section */}
-            <div>
-              <h3 className="text-sm font-bold text-gray-300 uppercase tracking-wider mb-4 border-b border-gray-800 pb-2">
-                4. {ui.feesSection}
-              </h3>
+            <div className="form-section">
+              <div className="section-header">
+                <span className="section-number">04</span>
+                <span className="section-title">{ui.feesSection}</span>
+              </div>
               <div className="space-y-4">
                 <div className="grid-2-cols">
                   <div className="form-group">
                     <label>{ui.flatFee}</label>
                     <input
                       type="number"
+                      min="0"
                       value={formValues.flatFee}
                       onChange={(e) => handleInputChange('flatFee', e.target.value)}
                       className="form-input"
@@ -532,12 +538,24 @@ export default function App() {
                     <label>{ui.initialPayment}</label>
                     <input
                       type="number"
+                      min="0"
+                      max={formValues.flatFee || undefined}
                       value={formValues.initialPayment}
                       onChange={(e) => handleInputChange('initialPayment', e.target.value)}
                       className="form-input"
                     />
                   </div>
                 </div>
+                {remainingBalance !== null && remainingBalance > 0 && (
+                  <div style={{ fontFamily: 'var(--font-mono)', fontSize: '0.62rem', color: 'var(--gold)', letterSpacing: '1px', padding: '0.4rem 0.6rem', border: '1px solid var(--gold-border)', background: 'var(--gold-bg)' }}>
+                    {lang === 'es' ? 'Saldo pendiente:' : 'Remaining balance:'} <strong>${remainingBalance.toLocaleString()}</strong>
+                  </div>
+                )}
+                {remainingBalance === 0 && formValues.flatFee && (
+                  <div style={{ fontFamily: 'var(--font-mono)', fontSize: '0.62rem', color: '#34D399', letterSpacing: '1px', padding: '0.4rem 0.6rem', border: '1px solid rgba(52,211,153,0.2)', background: 'rgba(52,211,153,0.05)' }}>
+                    {lang === 'es' ? 'Pago completo al firmar' : 'Full payment at signing'}
+                  </div>
+                )}
 
                 <div className="payor-toggle-box mb-4">
                   <label className="cursor-pointer">{ui.hasPaymentPlan}</label>
@@ -558,6 +576,7 @@ export default function App() {
                       <label>{ui.monthlyPayment}</label>
                       <input
                         type="number"
+                        min="0"
                         value={formValues.monthlyPayment}
                         onChange={(e) => handleInputChange('monthlyPayment', e.target.value)}
                         className="form-input"
@@ -578,21 +597,30 @@ export default function App() {
             </div>
 
             {/* Signatures Panel */}
-            <div className="bg-[#0b0d13] p-5 rounded-lg border border-gray-800">
+            <div className="form-section">
               <div className="flex-between mb-4">
-                <label className="text-xs font-bold uppercase tracking-wider text-[#F3E5AB]">
-                  {ui.signatureSection}
-                </label>
-                <div className="flex gap-2">
-                  <button 
-                    onClick={() => setSigColor('#0F2A4A')} 
-                    className={`w-4 h-4 rounded-full border ${sigColor === '#0F2A4A' ? 'border-[#D4AF37] scale-125' : 'border-transparent'}`} 
-                    style={{backgroundColor: '#0F2A4A'}}
+                <div className="section-header" style={{ marginBottom: 0 }}>
+                  <PenTool size={11} style={{ color: 'var(--gold)' }} />
+                  <span className="section-title">{ui.signatureSection}</span>
+                </div>
+                <div className="flex gap-2 items-center">
+                  <button
+                    onClick={() => setSigColor('#0F2A4A')}
+                    title="Ink: Navy"
+                    style={{
+                      width: 14, height: 14, borderRadius: '50%', background: '#0F2A4A',
+                      border: sigColor === '#0F2A4A' ? '2px solid var(--gold)' : '2px solid transparent',
+                      cursor: 'pointer', padding: 0
+                    }}
                   />
-                  <button 
-                    onClick={() => setSigColor('#111827')} 
-                    className={`w-4 h-4 rounded-full border ${sigColor === '#111827' ? 'border-[#D4AF37] scale-125' : 'border-transparent'}`} 
-                    style={{backgroundColor: '#111827'}}
+                  <button
+                    onClick={() => setSigColor('#111827')}
+                    title="Ink: Black"
+                    style={{
+                      width: 14, height: 14, borderRadius: '50%', background: '#111827',
+                      border: sigColor === '#111827' ? '2px solid var(--gold)' : '2px solid transparent',
+                      cursor: 'pointer', padding: 0
+                    }}
                   />
                 </div>
               </div>
@@ -628,20 +656,12 @@ export default function App() {
 
             <button
               onClick={handleExport}
-              disabled={isExporting || !signatureText}
+              disabled={!signatureText}
               className="btn-primary w-full"
+              style={{ marginTop: '1.5rem' }}
             >
-              {isExporting ? (
-                <>
-                  <RefreshCw className="animate-spin w-5 h-5" />
-                  {ui.exportingBtn}
-                </>
-              ) : (
-                <>
-                  <PenTool className="w-5 h-5" />
-                  {ui.exportBtn}
-                </>
-              )}
+              <PenTool size={14} />
+              {ui.exportBtn}
             </button>
           </div>
         </div>
@@ -668,7 +688,7 @@ export default function App() {
             </h1>
 
             <div>
-              <h3 className="paper-clause h3">{ui.docParties}</h3>
+              <h3 className="paper-clause">{ui.docParties}</h3>
               <p className="paper-clause">{ui.docPartiesText}</p>
               <ol className="legal-list">
                 <li>
@@ -684,14 +704,14 @@ export default function App() {
                 )}
               </ol>
 
-              <h3 className="paper-clause h3">{ui.docPurposeTitle}</h3>
+              <h3 className="paper-clause">{ui.docPurposeTitle}</h3>
               <p className="paper-clause">
                 {ui.docPurposeText1}
                 <span className={getHighlightClass('purpose')} style={{ minWidth: '400px' }}>{formValues.purpose || ''}</span>
                 {ui.docPurposeText2}
               </p>
 
-              <h3 className="paper-clause h3">{ui.docFeesTitle}</h3>
+              <h3 className="paper-clause">{ui.docFeesTitle}</h3>
               <p className="paper-clause">
                 {ui.docFeesText1}
                 <span className={getHighlightClass('flatFee')} style={{ minWidth: '80px' }}>{formValues.flatFee || ''}</span>
@@ -722,7 +742,7 @@ export default function App() {
                 <strong>{ui.docHourlyTitle}</strong> {ui.docHourlyText}
               </p>
 
-              <h3 className="paper-clause h3">{ui.docRespTitle}</h3>
+              <h3 className="paper-clause">{ui.docRespTitle}</h3>
               <p className="paper-clause"><strong>{ui.docRespIntro}</strong></p>
               <ul className="legal-list" style={{ listStyleType: 'none', paddingLeft: '1rem' }}>
                 {ui.docRespList.map((item, idx) => (
@@ -731,24 +751,24 @@ export default function App() {
               </ul>
               <p className="paper-clause">{ui.docRespOutro}</p>
 
-              <h3 className="paper-clause h3">{ui.docConfTitle}</h3>
+              <h3 className="paper-clause">{ui.docConfTitle}</h3>
               <p className="paper-clause">{ui.docConfText1}</p>
 
-              <h3 className="paper-clause h3">{ui.docRescTitle}</h3>
+              <h3 className="paper-clause">{ui.docRescTitle}</h3>
               <p className="paper-clause">{ui.docRescText1}</p>
               <p className="paper-clause">{ui.docRescText2}</p>
               <p className="paper-clause">{ui.docRescText3}</p>
 
-              <h3 className="paper-clause h3">{ui.docCostsTitle}</h3>
+              <h3 className="paper-clause">{ui.docCostsTitle}</h3>
               <p className="paper-clause">{ui.docCostsText1}</p>
 
-              <h3 className="paper-clause h3">{ui.docBarTitle}</h3>
+              <h3 className="paper-clause">{ui.docBarTitle}</h3>
               <p className="paper-clause">{ui.docBarText}</p>
 
-              <h3 className="paper-clause h3">{ui.docGuarTitle}</h3>
+              <h3 className="paper-clause">{ui.docGuarTitle}</h3>
               <p className="paper-clause">{ui.docGuarText}</p>
 
-              <h3 className="paper-clause h3">{ui.docConflictTitle}</h3>
+              <h3 className="paper-clause">{ui.docConflictTitle}</h3>
               <p className="paper-clause">{ui.docConflictText}</p>
             </div>
 
@@ -761,28 +781,22 @@ export default function App() {
                 <div className="digital-signature" style={{ color: sigColor }}>
                   {signatureText || ''}
                 </div>
-                <div style={{ borderTop: '1px solid black', paddingTop: '4px' }}>
-                  {ui.docClientSig}{ui.orContact}
-                </div>
+                <div style={{ paddingTop: '4px' }}>{ui.docClientSig}{ui.orContact}</div>
               </div>
 
               <div className="sig-block">
                 <div className="digital-signature" style={{ color: sigColor }}>
                   Mario Varela
                 </div>
-                <div style={{ borderTop: '1px solid black', paddingTop: '4px' }}>
-                  {ui.docAttySig}, Mario Varela
-                </div>
+                <div style={{ paddingTop: '4px' }}>{ui.docAttySig}, Mario Varela</div>
               </div>
-              
+
               {formValues.hasPayor === 'true' && formValues.payorName && (
                 <div className="sig-block" style={{ gridColumn: 'span 2' }}>
                   <div className="digital-signature" style={{ color: sigColor }}>
                     {payorSignatureText || ''}
                   </div>
-                  <div style={{ borderTop: '1px solid black', paddingTop: '4px' }}>
-                    {ui.docPayorSig}
-                  </div>
+                  <div style={{ paddingTop: '4px' }}>{ui.docPayorSig}</div>
                 </div>
               )}
             </div>
@@ -819,37 +833,16 @@ export default function App() {
         </div>
       </div>
 
-      {isExporting && (
-        <div className="fixed inset-0 bg-[#0B0D13]/85 backdrop-blur-md flex items-center justify-center z-50 animate-fade-in">
-          <div className="bg-[#161A26] border border-[#D4AF37]/30 rounded-xl p-10 max-w-md w-full mx-4 shadow-2xl text-center">
-            <RefreshCw className="animate-spin text-[#D4AF37] w-12 h-12 mx-auto mb-6" strokeWidth={1.5} />
-            <h3 className="text-xl font-bold uppercase tracking-wider text-[#F3E5AB] mb-4">
-              Varela Cryptographic Engine
-            </h3>
-            <div className="space-y-3 text-left max-w-[280px] mx-auto">
-              {[1, 2, 3, 4].map(step => (
-                <div key={step} className="flex items-center gap-3">
-                  {exportStep >= step ? (
-                    <CheckCircle2 className="text-emerald-500 w-5 h-5 flex-shrink-0" />
-                  ) : (
-                    <div className="w-5 h-5 rounded-full border border-gray-600" />
-                  )}
-                  <span className={`text-sm ${exportStep >= step ? 'text-gray-200' : 'text-gray-500'}`}>
-                    {step === 1 ? 'Analyzing contract clauses...' : step === 2 ? 'Generating SHA-256 secure hash...' : step === 3 ? 'Affixing Varela Law digital seal...' : 'Securing PDF document envelope...'}
-                  </span>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-      )}
-
       {showToast && (
-        <div className="toast border-emerald-500/30 text-left">
-          <CheckCircle2 className="text-emerald-500 w-6 h-6 flex-shrink-0" />
+        <div className="toast">
+          <CheckCircle2 size={16} style={{ color: '#34D399', flexShrink: 0 }} />
           <div>
-            <div className="font-bold text-gray-100 text-sm">Contract Exported Successfully</div>
-            <div className="text-xs text-gray-400">Document generated and stored securely in local vault.</div>
+            <div style={{ fontFamily: 'var(--font-mono)', fontSize: '0.7rem', fontWeight: 600, letterSpacing: '1px', color: 'var(--text-primary)', textTransform: 'uppercase' }}>
+              Print Dialog Opened
+            </div>
+            <div style={{ fontFamily: 'var(--font-mono)', fontSize: '0.62rem', color: 'var(--text-secondary)', marginTop: '3px' }}>
+              Save as PDF from the print dialog.
+            </div>
           </div>
         </div>
       )}

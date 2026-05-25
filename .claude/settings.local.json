@@ -19,7 +19,9 @@
       "Bash(osascript)",
       "Bash(screencapture -x /tmp/contract_after2.png)",
       "Bash(screencapture -x /tmp/contract_after3.png)",
-      "Bash(kill %1)"
+      "Bash(kill %1)",
+      "Bash(npx skills *)",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\" http://localhost:5173)"
     ]
   }
 }
