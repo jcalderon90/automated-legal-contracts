@@ -150,7 +150,7 @@ export function DocumentPreview({
                 {/* Signing date */}
                 <div style={{ marginTop: '3rem', fontSize: '10pt', textAlign: 'left', marginBottom: '2rem' }}>
                     <span>
-                        Firmado y aceptado con fecha de:{' '}
+                        {ui.signedDate}{' '}
                         <span className={getHighlightClass('agreementDate')} style={{ minWidth: '200px' }}>
                             {formValues.agreementDate || ''}
                         </span>
@@ -164,7 +164,7 @@ export function DocumentPreview({
                             {signatureText || ''}
                         </div>
                         <div style={{ borderTop: '1px solid black', paddingTop: '4px' }}>
-                            {ui.docClientSig} o Contacto
+                            {ui.docClientSig}{ui.orContact}
                         </div>
                     </div>
 
@@ -193,20 +193,20 @@ export function DocumentPreview({
                 <div className="contract-details-card">
                     <div>
                         <div className="contract-details-header">{ui.docClientInfo}:</div>
-                        <div>Nombre: <span className={getHighlightClass('clientName')} style={{ minWidth: '250px' }}>{formValues.clientName || ''}</span></div>
-                        <div>Dirección: <span className={getHighlightClass('clientAddress')} style={{ minWidth: '250px' }}>{formValues.clientAddress || ''}</span></div>
-                        <div>Teléfono: <span className={getHighlightClass('clientPhone')} style={{ minWidth: '250px' }}>{formValues.clientPhone || ''}</span></div>
-                        <div>Email: <span className={getHighlightClass('clientEmail')} style={{ minWidth: '250px' }}>{formValues.clientEmail || ''}</span></div>
+                        <div>{ui.labelName} <span className={getHighlightClass('clientName')} style={{ minWidth: '250px' }}>{formValues.clientName || ''}</span></div>
+                        <div>{ui.labelAddress} <span className={getHighlightClass('clientAddress')} style={{ minWidth: '250px' }}>{formValues.clientAddress || ''}</span></div>
+                        <div>{ui.labelPhone} <span className={getHighlightClass('clientPhone')} style={{ minWidth: '250px' }}>{formValues.clientPhone || ''}</span></div>
+                        <div>{ui.labelEmail} <span className={getHighlightClass('clientEmail')} style={{ minWidth: '250px' }}>{formValues.clientEmail || ''}</span></div>
                     </div>
 
                     {formValues.hasPayor === 'true' && formValues.payorName ? (
                         <div style={{ marginTop: '1.5rem' }}>
                             <div className="contract-details-header">{ui.docPayorInfo}:</div>
-                            <div>Nombre: <span className={getHighlightClass('payorName')} style={{ minWidth: '250px' }}>{formValues.payorName || ''}</span></div>
-                            <div>Dirección: <span className={getHighlightClass('payorAddress')} style={{ minWidth: '250px' }}>{formValues.payorAddress || ''}</span></div>
-                            <div>Teléfono: <span className={getHighlightClass('payorPhone')} style={{ minWidth: '250px' }}>{formValues.payorPhone || ''}</span></div>
-                            <div>Email: <span className={getHighlightClass('payorEmail')} style={{ minWidth: '250px' }}>{formValues.payorEmail || ''}</span></div>
-                            <div>Relación con el Cliente: <span className={getHighlightClass('payorRelation')} style={{ minWidth: '150px' }}>{formValues.payorRelation || ''}</span></div>
+                            <div>{ui.labelName} <span className={getHighlightClass('payorName')} style={{ minWidth: '250px' }}>{formValues.payorName || ''}</span></div>
+                            <div>{ui.labelAddress} <span className={getHighlightClass('payorAddress')} style={{ minWidth: '250px' }}>{formValues.payorAddress || ''}</span></div>
+                            <div>{ui.labelPhone} <span className={getHighlightClass('payorPhone')} style={{ minWidth: '250px' }}>{formValues.payorPhone || ''}</span></div>
+                            <div>{ui.labelEmail} <span className={getHighlightClass('payorEmail')} style={{ minWidth: '250px' }}>{formValues.payorEmail || ''}</span></div>
+                            <div>{ui.labelRelation} <span className={getHighlightClass('payorRelation')} style={{ minWidth: '150px' }}>{formValues.payorRelation || ''}</span></div>
                         </div>
                     ) : null}
                 </div>

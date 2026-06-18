@@ -1,63 +1,95 @@
-import { Shield, Globe, PenTool, RefreshCw } from 'lucide-react';
+import React from 'react';
+import { Shield, Globe, PenTool } from 'lucide-react';
 import type { Translations } from '../i18n/translations';
 import type { FormValues } from '../types';
+import type { Lang } from '../i18n/translations';
 
 interface FormPanelProps {
+    lang: Lang;
     ui: Translations;
     formValues: FormValues;
     signatureText: string;
     payorSignatureText: string;
     sigColor: string;
-    isExporting: boolean;
+    remainingBalance: number | null;
     onInputChange: (field: string, value: string) => void;
     onSignatureChange: (value: string) => void;
     onPayorSignatureChange: (value: string) => void;
     onSigColorChange: (color: string) => void;
     onExport: () => void;
+    setLang: (lang: Lang) => void;
 }
 
+const OptLabel = ({
+    children,
+    optional,
+    lang,
+}: {
+    children: React.ReactNode;
+    optional?: boolean;
+    lang: Lang;
+}) => (
+    <span style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        {children}
+        {optional && (
+            <span style={{ fontFamily: 'var(--font-mono)', fontSize: '0.55rem', color: 'var(--text-muted)', letterSpacing: '1px', fontWeight: 400, textTransform: 'uppercase' }}>
+                {lang === 'es' ? 'opcional' : 'optional'}
+            </span>
+        )}
+    </span>
+);
+
 export function FormPanel({
+    lang,
     ui,
     formValues,
     signatureText,
     payorSignatureText,
     sigColor,
-    isExporting,
+    remainingBalance,
     onInputChange,
     onSignatureChange,
     onPayorSignatureChange,
     onSigColorChange,
     onExport,
+    setLang,
 }: FormPanelProps) {
     return (
-        <div className="panel" style={{ maxHeight: 'calc(100vh - 100px)', overflowY: 'auto' }}>
+        <div className="panel">
 
-            <div className="flex-between mb-6 border-b border-gray-800 pb-4 sticky top-0 bg-[#161A26] z-10 pt-2">
+            <div className="panel-sticky-header flex-between">
                 <div className="flex items-center gap-2">
-                    <Shield className="text-[#D4AF37] w-5 h-5" />
-                    <h2 className="text-xl font-bold uppercase tracking-wider text-[#F3E5AB]">
+                    <Shield className="w-4 h-4" style={{ color: 'var(--gold)' }} />
+                    <span style={{ fontFamily: 'var(--font-mono)', fontSize: '0.62rem', letterSpacing: '3px', textTransform: 'uppercase', color: 'var(--gold-light)' }}>
                         {ui.parametersTitle}
-                    </h2>
+                    </span>
                 </div>
             </div>
 
-            <div className="space-y-8 pb-8">
-                {/* 1. Language Selection */}
-                <div className="bg-[#0b0d13]/60 p-5 rounded-lg border border-[#D4AF37]/30">
-                    <label className="flex items-center gap-2 text-[#F3E5AB] font-bold mb-3 uppercase tracking-wider text-sm">
-                        <Globe size={16} />
-                        {ui.languageLabel}
-                    </label>
-                    <p className="text-gray-500 text-xs italic">
-                        Use the language buttons in the header to switch contract language.
-                    </p>
+            <div className="space-y-0 pb-8">
+
+                {/* Language */}
+                <div className="form-section">
+                    <div className="section-header">
+                        <Globe size={11} style={{ color: 'var(--gold)' }} />
+                        <span className="section-title">{ui.languageLabel}</span>
+                    </div>
+                    <div className="lang-toggle">
+                        <button onClick={() => setLang('es')} className={`lang-btn ${lang === 'es' ? 'active' : ''}`}>
+                            🇪🇸 Español
+                        </button>
+                        <button onClick={() => setLang('en')} className={`lang-btn ${lang === 'en' ? 'active' : ''}`}>
+                            🇺🇸 English
+                        </button>
+                    </div>
                 </div>
 
-                {/* 2. Client Section */}
-                <div>
-                    <h3 className="text-sm font-bold text-gray-300 uppercase tracking-wider mb-4 border-b border-gray-800 pb-2">
-                        1. {ui.clientSection}
-                    </h3>
+                {/* 01 — Client Section */}
+                <div className="form-section">
+                    <div className="section-header">
+                        <span className="section-number">01</span>
+                        <span className="section-title">{ui.clientSection}</span>
+                    </div>
                     <div className="space-y-4">
                         <div className="form-group">
                             <label>{ui.clientName}</label>
@@ -70,7 +102,7 @@ export function FormPanel({
                             />
                         </div>
                         <div className="form-group">
-                            <label>{ui.clientAddress}</label>
+                            <label><OptLabel optional lang={lang}>{ui.clientAddress}</OptLabel></label>
                             <input
                                 type="text"
                                 value={formValues.clientAddress}
@@ -81,7 +113,7 @@ export function FormPanel({
                         </div>
                         <div className="grid-2-cols">
                             <div className="form-group">
-                                <label>{ui.clientPhone}</label>
+                                <label><OptLabel optional lang={lang}>{ui.clientPhone}</OptLabel></label>
                                 <input
                                     type="text"
                                     value={formValues.clientPhone}
@@ -90,7 +122,7 @@ export function FormPanel({
                                 />
                             </div>
                             <div className="form-group">
-                                <label>{ui.clientEmail}</label>
+                                <label><OptLabel optional lang={lang}>{ui.clientEmail}</OptLabel></label>
                                 <input
                                     type="email"
                                     value={formValues.clientEmail}
@@ -102,11 +134,12 @@ export function FormPanel({
                     </div>
                 </div>
 
-                {/* 3. Payor Section */}
-                <div>
-                    <h3 className="text-sm font-bold text-gray-300 uppercase tracking-wider mb-4 border-b border-gray-800 pb-2">
-                        2. {ui.payorSection}
-                    </h3>
+                {/* 02 — Payor Section */}
+                <div className="form-section">
+                    <div className="section-header">
+                        <span className="section-number">02</span>
+                        <span className="section-title">{ui.payorSection}</span>
+                    </div>
                     <div className="payor-toggle-box mb-4">
                         <label className="cursor-pointer">{ui.hasPayor}</label>
                         <select
@@ -143,7 +176,7 @@ export function FormPanel({
                                 />
                             </div>
                             <div className="form-group">
-                                <label>{ui.payorAddress}</label>
+                                <label><OptLabel optional lang={lang}>{ui.payorAddress}</OptLabel></label>
                                 <input
                                     type="text"
                                     value={formValues.payorAddress}
@@ -162,7 +195,7 @@ export function FormPanel({
                                     />
                                 </div>
                                 <div className="form-group">
-                                    <label>{ui.payorEmail}</label>
+                                    <label><OptLabel optional lang={lang}>{ui.payorEmail}</OptLabel></label>
                                     <input
                                         type="email"
                                         value={formValues.payorEmail}
@@ -179,11 +212,12 @@ export function FormPanel({
                     )}
                 </div>
 
-                {/* 4. Case Details */}
-                <div>
-                    <h3 className="text-sm font-bold text-gray-300 uppercase tracking-wider mb-4 border-b border-gray-800 pb-2">
-                        3. {ui.detailsSection}
-                    </h3>
+                {/* 03 — Case Details */}
+                <div className="form-section">
+                    <div className="section-header">
+                        <span className="section-number">03</span>
+                        <span className="section-title">{ui.detailsSection}</span>
+                    </div>
                     <div className="space-y-4">
                         <div className="form-group">
                             <label>{ui.purpose}</label>
@@ -219,17 +253,19 @@ export function FormPanel({
                     </div>
                 </div>
 
-                {/* 5. Fees Section */}
-                <div>
-                    <h3 className="text-sm font-bold text-gray-300 uppercase tracking-wider mb-4 border-b border-gray-800 pb-2">
-                        4. {ui.feesSection}
-                    </h3>
+                {/* 04 — Fees Section */}
+                <div className="form-section">
+                    <div className="section-header">
+                        <span className="section-number">04</span>
+                        <span className="section-title">{ui.feesSection}</span>
+                    </div>
                     <div className="space-y-4">
                         <div className="grid-2-cols">
                             <div className="form-group">
                                 <label>{ui.flatFee}</label>
                                 <input
                                     type="number"
+                                    min="0"
                                     value={formValues.flatFee}
                                     onChange={(e) => onInputChange('flatFee', e.target.value)}
                                     className="form-input"
@@ -239,12 +275,25 @@ export function FormPanel({
                                 <label>{ui.initialPayment}</label>
                                 <input
                                     type="number"
+                                    min="0"
+                                    max={formValues.flatFee || undefined}
                                     value={formValues.initialPayment}
                                     onChange={(e) => onInputChange('initialPayment', e.target.value)}
                                     className="form-input"
                                 />
                             </div>
                         </div>
+
+                        {remainingBalance !== null && remainingBalance > 0 && (
+                            <div style={{ fontFamily: 'var(--font-mono)', fontSize: '0.62rem', color: 'var(--gold)', letterSpacing: '1px', padding: '0.4rem 0.6rem', border: '1px solid var(--gold-border)', background: 'var(--gold-bg)' }}>
+                                {lang === 'es' ? 'Saldo pendiente:' : 'Remaining balance:'} <strong>${remainingBalance.toLocaleString()}</strong>
+                            </div>
+                        )}
+                        {remainingBalance === 0 && formValues.flatFee && (
+                            <div style={{ fontFamily: 'var(--font-mono)', fontSize: '0.62rem', color: '#34D399', letterSpacing: '1px', padding: '0.4rem 0.6rem', border: '1px solid rgba(52,211,153,0.2)', background: 'rgba(52,211,153,0.05)' }}>
+                                {lang === 'es' ? 'Pago completo al firmar' : 'Full payment at signing'}
+                            </div>
+                        )}
 
                         <div className="payor-toggle-box mb-4">
                             <label className="cursor-pointer">{ui.hasPaymentPlan}</label>
@@ -265,6 +314,7 @@ export function FormPanel({
                                     <label>{ui.monthlyPayment}</label>
                                     <input
                                         type="number"
+                                        min="0"
                                         value={formValues.monthlyPayment}
                                         onChange={(e) => onInputChange('monthlyPayment', e.target.value)}
                                         className="form-input"
@@ -284,22 +334,23 @@ export function FormPanel({
                     </div>
                 </div>
 
-                {/* 6. Signatures Panel */}
-                <div className="bg-[#0b0d13] p-5 rounded-lg border border-gray-800">
+                {/* Signatures Panel */}
+                <div className="form-section">
                     <div className="flex-between mb-4">
-                        <label className="text-xs font-bold uppercase tracking-wider text-[#F3E5AB]">
-                            {ui.signatureSection}
-                        </label>
-                        <div className="flex gap-2">
+                        <div className="section-header" style={{ marginBottom: 0 }}>
+                            <PenTool size={11} style={{ color: 'var(--gold)' }} />
+                            <span className="section-title">{ui.signatureSection}</span>
+                        </div>
+                        <div className="flex gap-2 items-center">
                             <button
                                 onClick={() => onSigColorChange('#0F2A4A')}
-                                className={`w-4 h-4 rounded-full border ${sigColor === '#0F2A4A' ? 'border-[#D4AF37] scale-125' : 'border-transparent'}`}
-                                style={{ backgroundColor: '#0F2A4A' }}
+                                title="Ink: Navy"
+                                style={{ width: 14, height: 14, borderRadius: '50%', background: '#0F2A4A', border: sigColor === '#0F2A4A' ? '2px solid var(--gold)' : '2px solid transparent', cursor: 'pointer', padding: 0 }}
                             />
                             <button
                                 onClick={() => onSigColorChange('#111827')}
-                                className={`w-4 h-4 rounded-full border ${sigColor === '#111827' ? 'border-[#D4AF37] scale-125' : 'border-transparent'}`}
-                                style={{ backgroundColor: '#111827' }}
+                                title="Ink: Black"
+                                style={{ width: 14, height: 14, borderRadius: '50%', background: '#111827', border: sigColor === '#111827' ? '2px solid var(--gold)' : '2px solid transparent', cursor: 'pointer', padding: 0 }}
                             />
                         </div>
                     </div>
@@ -335,20 +386,12 @@ export function FormPanel({
 
                 <button
                     onClick={onExport}
-                    disabled={isExporting || !signatureText}
+                    disabled={!signatureText}
                     className="btn-primary w-full"
+                    style={{ marginTop: '1.5rem' }}
                 >
-                    {isExporting ? (
-                        <>
-                            <RefreshCw className="animate-spin w-5 h-5" />
-                            {ui.exportingBtn}
-                        </>
-                    ) : (
-                        <>
-                            <PenTool className="w-5 h-5" />
-                            {ui.exportBtn}
-                        </>
-                    )}
+                    <PenTool size={14} />
+                    {ui.exportBtn}
                 </button>
             </div>
         </div>
